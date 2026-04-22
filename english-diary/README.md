@@ -154,31 +154,57 @@ curl -X POST http://localhost:8000/api/v1/auth/refresh \
 
 ---
 
-## 📝 ローカルでのテスト
+## 🧪 テスト実行
 
-### Backend テスト
+### バックエンド テスト（Docker推奨）
+
+```bash
+cd english-diary
+
+# Docker Compose でテスト実行
+docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
+
+# または直接pytest実行
+cd backend
+python -m pytest tests/ -v --cov=app --cov-report=html
+```
+
+### テストカバレッジ確認
+
+```bash
+# HTML レポート生成
+cd backend
+pytest --cov=app --cov-report=html
+
+# ブラウザで htmlcov/index.html を開く
+```
+
+### 特定のテストを実行
 
 ```bash
 cd backend
 
-# テスト実行
-pytest
+# 認証テストのみ
+pytest tests/test_auth.py -v
 
-# カバレッジ確認
-pytest --cov=app tests/
+# 日記テストのみ
+pytest tests/test_diary.py -v
+
+# 特定のテストクラス
+pytest tests/test_auth.py::TestUserRegistration -v
+
+# 特定のテスト関数
+pytest tests/test_auth.py::TestUserRegistration::test_register_success -v
 ```
 
-### Frontend テスト
+### CI/CD パイプライン
 
-```bash
-cd frontend
+GitHub Actions で以下が自動実行されます：
+- ✅ pytest でテスト実行
+- ✅ カバレッジレポート生成
+- ✅ Codecov へのアップロード
 
-# テスト実行
-npm test
-
-# ビルド確認
-npm run build
-```
+**詳細**: [CI_TESTING_GUIDE.md](../CI_TESTING_GUIDE.md) を参照
 
 ---
 
