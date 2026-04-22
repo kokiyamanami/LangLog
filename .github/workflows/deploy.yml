@@ -1,83 +1,21 @@
-name: Deploy to ECS
+name: Deploy to ECS (Disabled)
 
 on:
-  push:
-    branches:
-      - main
-      - develop
   workflow_dispatch:
+    # 手動トリガーのみ。自動デプロイは無効化
 
-env:
-  AWS_REGION: ap-northeast-1
+# Note: This workflow requires AWS credentials and ECS setup
+# それまでは、このワークフローは disabled です
 
 jobs:
-  build-and-deploy:
+  disabled:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install dependencies
+      - name: Workflow disabled
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest httpx
-
-      - name: Run tests
-        run: pytest tests/ -v --tb=short
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build, tag, and push image to Amazon ECR
-        id: image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: langlog-api
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Update ECS task definition
-        id: task-def
-        uses: aws-actions/ecs-render-task-definition@v1
-        with:
-          task-definition: ecs-task-definition.json
-          container-name: langlog-api
-          image: ${{ steps.image.outputs.image }}
-
-      - name: Deploy to ECS service
-        uses: aws-actions/ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: langlog-api-service
-          cluster: langlog-cluster
-          wait-for-service-stability: true
-
-      - name: Notify deployment status
-        if: always()
+          echo "This workflow is currently disabled."
+          echo "It requires AWS credentials and ECS infrastructure setup."
+          exit 0
         run: |
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ Deployment successful!"
