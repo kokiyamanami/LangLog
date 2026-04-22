@@ -1,0 +1,1094 @@
+/* ====================================
+   LandingPage スタイル
+   ランディングページ全体のデザイン
+   アニメーション、ナビゲーション、セクション
+   ==================================== */
+
+/* ランディングページ：最小高さ 100vh、白い背景 */
+.landing-page {
+  min-height: 100vh;
+  background: white;
+}
+
+/* ====================================
+   アニメーションキーフレーム定義
+   ==================================== */
+
+/* フェードインダウン：上から下へフェードイン */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* フェードインアップ：下から上へフェードイン */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* スライドインレフト：左からスライドイン */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* スライドインライト：右からスライドイン */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* パルスアニメーション：明るさの点滅 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* フロート（浮かぶ）：上下に揺らぐアニメーション */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ====================================
+   ナビゲーションバー（ヘッダー）
+   ==================================== */
+
+/* ランディングページヘッダー：sticky、上からフェードイン */
+.landing-header {
+  background: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: fadeInDown 0.6s ease;
+}
+
+/* ヘッダーコンテンツ：最大幅、flex で左右配置 */
+.landing-header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ランディングロゴ：青色、大きめ */
+.landing-logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0052cc;
+}
+
+/* ランディング CTA ボタン：青い背景、丸いコーナー */
+.landing-cta-button {
+  background: #0052cc;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+/* ランディング CTA ボタンホバー：より濃い青、影を追加 */
+.landing-cta-button:hover {
+  background: #0041a8;
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.25);
+}
+
+/* ====================================
+   ヒーローセクション（メイン訴求）
+   ==================================== */
+
+/* ヒーローセクション：テキストと画像を左右に配置 */
+.hero-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4rem;
+}
+
+/* ヒーロー見出しと説明文 */
+.hero-content {
+  flex: 1;
+}
+
+/* ヒーロータイトル：大きいフォント、左からスライドイン */
+.hero-content h2 {
+  font-size: 2.8rem;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+  line-height: 1.2;
+  animation: slideInLeft 0.7s ease 0.1s backwards;
+}
+
+/* ヒーロー説明文：グレー色、左からスライドイン */
+.hero-content p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+  animation: slideInLeft 0.7s ease 0.2s backwards;
+}
+
+/* ヒーロー画像：SVG イラスト表示 */
+.hero-image {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* ヒーロー画像要素：右からスライドイン */
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  animation: slideInRight 0.7s ease 0.1s backwards;
+}
+
+/* ヒーロー CTA ボタン：上からフェードイン */
+.hero-cta-button {
+  background: #0052cc;
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.7s ease 0.3s backwards;
+}
+
+/* ヒーロー CTA ボタンホバー：上に移動、影を追加 */
+.hero-cta-button:hover {
+  background: #0041a8;
+  box-shadow: 0 8px 20px rgba(0, 82, 204, 0.3);
+  transform: translateY(-3px);
+}
+
+/* ====================================
+   特徴セクション（6 つの機能カード）
+   ==================================== */
+
+/* 特徴セクション：light blue 背景 */
+.features-section {
+  background: #f8f9fb;
+  padding: 4rem 2rem;
+}
+
+/* 特徴セクション見出し：中央配置、大きいフォント */
+.features-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0 0 3rem 0;
+  animation: fadeInUp 0.7s ease;
+}
+
+/* 特徴グリッド：レスポンシブ 3 列レイアウト */
+.features-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* 特徴カード：白い背景、subtle な影、hover で拡大 */
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: fadeInUp 0.6s ease backwards;
+  border: 2px solid transparent;
+}
+
+/* 特徴カード：staggered animation delays（0.1s ずつ遅延） */
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+.feature-card:nth-child(5) { animation-delay: 0.5s; }
+.feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  border-color: #0052cc;
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.feature-svg {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+}
+
+.heroicon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #0052cc;
+}
+
+.feature-card h3 {
+  font-size: 1.2rem;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ===== フローセクション ===== */
+.flow-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.flow-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0 0 3rem 0;
+  animation: fadeInUp 0.7s ease;
+}
+
+.flow-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.flow-step {
+  background: white;
+  border: 2px solid #0052cc;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 200px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease backwards;
+}
+
+.flow-step:nth-child(1) { animation-delay: 0.2s; }
+.flow-step:nth-child(3) { animation-delay: 0.4s; }
+.flow-step:nth-child(5) { animation-delay: 0.6s; }
+
+.flow-step:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 82, 204, 0.2);
+}
+
+.step-number {
+  background: #0052cc;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.flow-step h3 {
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.flow-step p {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.flow-arrow {
+  font-size: 1.5rem;
+  color: #0052cc;
+  font-weight: bold;
+}
+
+/* ===== 統計セクション ===== */
+.stats-section {
+  background: linear-gradient(135deg, #0052cc 0%, #0041a8 100%);
+  color: white;
+  padding: 3rem 2rem;
+  animation: fadeInUp 0.7s ease;
+}
+
+.stats-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  text-align: center;
+}
+
+.stat-item {
+  padding: 1rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+
+/* ====================================
+   ユーザーの声セクション（3 つの推薦文）
+   ==================================== */
+
+/* ユーザーの声セクション：白い背景 */
+.testimonials-section {
+  background: white;
+  padding: 4rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ユーザーの声見出し：中央配置 */
+.testimonials-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0 0 3rem 0;
+  animation: fadeInUp 0.7s ease;
+}
+
+/* ユーザーの声グリッド：3 列レイアウト */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* ユーザーの声カード：light blue 背景、左に青い枠線、hover で浮く */
+.testimonial-card {
+  background: #f8f9fb;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #0052cc;
+  animation: fadeInUp 0.6s ease backwards;
+  transition: all 0.3s ease;
+}
+
+/* ユーザーの声カード：staggered delays */
+.testimonial-card:nth-child(1) { animation-delay: 0.1s; }
+.testimonial-card:nth-child(2) { animation-delay: 0.2s; }
+.testimonial-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* ユーザーの声カードホバー：上に移動、影を強化 */
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ユーザーの声星評価：黄色 */
+.testimonial-stars {
+  color: #ffd93d;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+/* ユーザーの声本文：イタリック */
+.testimonial-text {
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+  font-style: italic;
+}
+
+/* ユーザーの声著者名：太い */
+.testimonial-author {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ユーザーの声肩書き：グレー */
+.testimonial-title {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0 0;
+}
+
+/* ====================================
+   FAQ セクション（6 つの Q&A）
+   ==================================== */
+
+/* FAQ セクション：light blue 背景 */
+.faq-section {
+  background: #f8f9fb;
+  padding: 4rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* FAQ 見出し：中央配置 */
+.faq-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0 0 3rem 0;
+  animation: fadeInUp 0.7s ease;
+}
+
+/* FAQ コンテナ：最大幅 800px で狭め */
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* FAQ アイテム：<details> 要素で折り畳み可能、white 背景、border */
+.faq-item {
+  background: white;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease backwards;
+}
+
+/* FAQ アイテム：staggered animation delays */
+.faq-item:nth-child(1) { animation-delay: 0.1s; }
+.faq-item:nth-child(2) { animation-delay: 0.2s; }
+.faq-item:nth-child(3) { animation-delay: 0.3s; }
+.faq-item:nth-child(4) { animation-delay: 0.4s; }
+.faq-item:nth-child(5) { animation-delay: 0.5s; }
+.faq-item:nth-child(6) { animation-delay: 0.6s; }
+
+/* FAQ アイテムホバー：影を追加、ボーダーを青に */
+.faq-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #0052cc;
+}
+
+/* FAQ サマリー（質問）：太いテキスト */
+.faq-item summary {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: '▼';
+  color: #0052cc;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.faq-item[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.faq-item p {
+  color: #666;
+  margin: 1rem 0 0 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+.final-cta-section {
+  background: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.final-cta-section h2 {
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+}
+
+.final-cta-section p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+}
+
+.final-cta-button {
+  background: #0052cc;
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* 最終 CTA ボタンホバー：pulse アニメーションを停止、上に移動 */
+.final-cta-button:hover {
+  background: #0041a8;
+  box-shadow: 0 8px 20px rgba(0, 82, 204, 0.3);
+  transform: translateY(-3px);
+  animation: none;
+}
+
+/* ====================================
+   フッター
+   ==================================== */
+
+/* ランディングフッター：light gray 背景、上にボーダー */
+.landing-footer {
+  background: #f8f9fb;
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+}
+
+/* フッターテキスト */
+.landing-footer p {
+  margin: 0;
+}
+
+/* ====================================
+   レスポンシブデザイン（モバイル対応）
+   ==================================== */
+
+/* 768px 以下のモバイルデバイス用 */
+@media (max-width: 768px) {
+  /* ランディングヘッダー：パディング削減 */
+  .landing-header {
+    padding: 0.75rem 1rem;
+  }
+
+  /* ランディングロゴ：フォントサイズ削減 */
+  .landing-logo {
+    font-size: 1.1rem;
+  }
+
+  /* ランディング CTA ボタン：パディング削減 */
+  .landing-cta-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  /* ヒーローセクション：カラムレイアウト、狭いパディング */
+  .hero-section {
+    flex-direction: column;
+    padding: 2rem 1rem;
+    gap: 1.5rem;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  /* ヒーロー content：幅100% */
+  .hero-content {
+    flex: none;
+    width: 100%;
+  }
+
+  /* ヒーロータイトル：小さいフォント */
+  .hero-content h2 {
+    font-size: 1.6rem;
+    line-height: 1.3;
+  }
+
+  /* ヒーロー説明文：フォントサイズ削減 */
+  .hero-content p {
+    font-size: 0.95rem;
+  }
+
+  /* ヒーロー CTA ボタン：パディング削減 */
+  .hero-cta-button {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* ヒーロー画像：非表示 */
+  .hero-image {
+    display: none;
+    flex: none;
+  }
+
+  /* 特徴セクション：パディング削減 */
+  .features-section {
+    padding: 2rem 1rem;
+  }
+
+  /* 特徴グリッド：1 列に変更 */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* 特徴セクション見出し：フォントサイズ削減 */
+  .features-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* 特徴カード：パディング削減 */
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  /* フローセクション：パディング削減 */
+  .flow-section {
+    padding: 2rem 1rem;
+  }
+
+  /* フローセクション見出し：フォントサイズ削減 */
+  .flow-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* フローコンテナ：カラムレイアウト */
+  .flow-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* フロー矢印：90 度回転して縦方向に、サイズ削減 */
+  .flow-arrow {
+    transform: rotate(90deg);
+    font-size: 1.2rem;
+  }
+
+  /* フロー ステップ：幅削減 */
+  .flow-step {
+    width: 100%;
+    padding: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* 統計セクション：パディング削減 */
+  .stats-section {
+    padding: 2rem 1rem;
+  }
+
+  /* 統計コンテンツ：1 列に変更 */
+  .stats-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* 統計値：フォントサイズ削減 */
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  /* 統計ラベル：フォントサイズ削減 */
+  .stat-label {
+    font-size: 0.9rem;
+  }
+
+  /* ユーザーの声セクション：パディング削減 */
+  .testimonials-section {
+    padding: 2rem 1rem;
+  }
+
+  /* ユーザーの声見出し：フォントサイズ削減 */
+  .testimonials-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ユーザーの声グリッド：1 列に変更 */
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* ユーザーの声カード：パディング削減 */
+  .testimonial-card {
+    padding: 1.5rem;
+  }
+
+  /* ユーザーの声本文：フォントサイズ削減 */
+  .testimonial-text {
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ユーザーの声著者名：フォントサイズ削減 */
+  .testimonial-author {
+    font-size: 0.9rem;
+  }
+
+  /* ユーザーの声肩書き：フォントサイズ削減 */
+  .testimonial-title {
+    font-size: 0.8rem;
+  }
+}
+
+/* 480px 以下のスマートフォン用 */
+@media (max-width: 480px) {
+  .landing-page {
+    background: white;
+  }
+
+  /* ランディングヘッダー */
+  .landing-header {
+    padding: 0.6rem 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .landing-header-content {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .landing-logo {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .landing-cta-button {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+    height: 38px;
+    border-radius: 20px;
+  }
+
+  /* ヒーロー */
+  .hero-section {
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+    justify-content: flex-start;
+  }
+
+  .hero-content {
+    flex: none;
+    width: 100%;
+  }
+
+  .hero-content h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 0.8rem 0;
+  }
+
+  .hero-content p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0 0 1.2rem 0;
+    color: #666;
+  }
+
+  .hero-cta-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    height: 40px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+
+  .hero-image {
+    display: none;
+  }
+
+  /* 特徴セクション */
+  .features-section {
+    background: #f8f9fb;
+    padding: 1.5rem 1rem;
+  }
+
+  .features-section h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 1.2rem 0;
+    line-height: 1.3;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .feature-card {
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem 0;
+  }
+
+  .feature-card p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+    color: #666;
+  }
+
+  /* フロー */
+  .flow-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .flow-section h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 1.2rem 0;
+    line-height: 1.3;
+  }
+
+  .flow-container {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .flow-arrow {
+    display: none;
+  }
+
+  .flow-step {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #0052cc;
+    border-radius: 8px;
+    margin-bottom: 0;
+  }
+
+  .flow-step h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem 0;
+  }
+
+  .flow-step p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+    color: #666;
+  }
+
+  .step-number {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  /* 統計 */
+  .stats-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .stats-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+  }
+
+  /* ユーザーの声 */
+  .testimonials-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .testimonials-section h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 1.2rem 0;
+    line-height: 1.3;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .testimonial-card {
+    padding: 1rem;
+    border-left: 3px solid #0052cc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  }
+
+  .testimonial-stars {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .testimonial-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .testimonial-author {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .testimonial-title {
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+  }
+
+  /* FAQ */
+  .faq-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .faq-section h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 1.2rem 0;
+    line-height: 1.3;
+  }
+
+  .faq-container {
+    max-width: 100%;
+  }
+
+  .faq-item {
+    padding: 0.9rem;
+    margin-bottom: 0.6rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  }
+
+  .faq-item summary {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .faq-item p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0.5rem 0 0 0;
+  }
+
+  /* 最終 CTA */
+  .final-cta-section {
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+
+  .final-cta-section h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 0.8rem 0;
+    line-height: 1.3;
+  }
+
+  .final-cta-section p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 1.2rem;
+  }
+
+  .final-cta-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    height: 40px;
+    border-radius: 20px;
+  }
+
+  /* フッター */
+  .landing-footer {
+    padding: 1rem;
+    font-size: 0.75rem;
+  }
+}

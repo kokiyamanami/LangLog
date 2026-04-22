@@ -1,0 +1,376 @@
+/* ====================================
+   MyPage スタイル
+   ユーザープロフィールページのデザイン
+   ==================================== */
+
+/* マイページ全体：最小高さ 100vh、白い背景 */
+.mypage {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* ====================================
+   ナビゲーションバー（ヘッダー）
+   ==================================== */
+
+/* マイページヘッダー：sticky position で常に上部に固定 */
+.mypage-header {
+  background: white;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* ヘッダーコンテンツ：左右配置、戻るボタンとタイトル */
+.mypage-header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* マイページタイトル */
+.mypage-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+/* 戻るボタン：Heroicon 付き、左側配置 */
+.back-button {
+  background: none;
+  border: none;
+  color: #0052cc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  padding: 0.5rem 1rem;
+}
+
+/* 戻るボタンホバー：より濃い青、左に移動 */
+.back-button:hover {
+  color: #0041a8;
+  transform: translateX(-2px);
+}
+
+/* 小さいアイコン */
+.icon-small {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* ====================================
+   メインコンテンツエリア
+   ==================================== */
+
+/* マイページコンテンツ：最大幅制限、中央配置 */
+.mypage-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* マイページコンテナ：内側のスペース管理 */
+.mypage-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ====================================
+   メッセージ表示
+   ==================================== */
+
+/* エラーメッセージ：赤い背景 */
+.error-message {
+  color: #d32f2f;
+  background: #ffebee;
+  border: 1px solid #ef5350;
+  border-left: 4px solid #d32f2f;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* 成功メッセージ：緑の背景 */
+.success-message {
+  color: #2e7d32;
+  background: #e8f5e9;
+  border: 1px solid #66bb6a;
+  border-left: 4px solid #2e7d32;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* ====================================
+   セクション（プロフィール・セキュリティ・アカウント）
+   ==================================== */
+
+/* セクション：白い背景、ボーダー、margin で分離 */
+.profile-section,
+.security-section,
+.account-section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* セクションヘッダー：アイコン + タイトル */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* セクションアイコン：青色、大きい */
+.section-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #0052cc;
+}
+
+/* セクションタイトル */
+.section-header h2 {
+  font-size: 1.3rem;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* ====================================
+   プロフィール表示・編集
+   ==================================== */
+
+/* プロフィールビュー：表示モード */
+.profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* プロフィールフィールド：ラベルと値 */
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* フィールドラベル */
+.profile-field label,
+.form-group label {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+}
+
+/* フィールド値：グレーテキスト */
+.profile-field p {
+  color: #666;
+  margin: 0;
+  padding: 0.75rem;
+  background: #f8f9fb;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+/* プロフィール編集フォーム */
+.profile-edit-form,
+.password-change-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* フォームグループ：各入力フィールド */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* フォーム入力フィールド */
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+/* 入力フィールドフォーカス */
+.form-group input:focus {
+  outline: none;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* 無効化入力フィールド */
+.input-disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* フォームのsmall テキスト（補足） */
+.form-group small {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* ====================================
+   ボタン
+   ==================================== */
+
+/* プライマリボタン：青い背景 */
+.primary-button {
+  padding: 0.9rem;
+  background: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+/* プライマリボタンホバー：より濃い青、影を追加 */
+.primary-button:hover {
+  background: #0041a8;
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.25);
+}
+
+/* セカンダリボタン：グレーの背景 */
+.secondary-button {
+  padding: 0.9rem;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+/* セカンダリボタンホバー：より濃いグレー */
+.secondary-button:hover {
+  background: #e0e0e0;
+}
+
+/* ボタングループ：複数ボタンを横並び */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ボタングループ内のボタン：同じ幅 */
+.button-group button {
+  flex: 1;
+}
+
+/* ====================================
+   セキュリティセクション
+   ==================================== */
+
+/* セキュリティ説明文 */
+.security-description {
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+/* セキュリティビュー */
+.security-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ====================================
+   アカウントセクション
+   ==================================== */
+
+/* アカウントアクション */
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ダンジャーボタン：赤い背景（ログアウト） */
+.danger-button {
+  padding: 0.9rem;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+/* ダンジャーボタンホバー：より濃い赤 */
+.danger-button:hover {
+  background: #c62828;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.25);
+}
+
+/* ====================================
+   レスポンシブデザイン
+   ==================================== */
+
+/* 768px 以下のモバイルデバイス用 */
+@media (max-width: 768px) {
+  /* ヘッダー：パディングを減らす */
+  .mypage-header-content {
+    padding: 1rem;
+  }
+
+  /* マイページ タイトル：小さいフォント */
+  .mypage-title {
+    font-size: 1.2rem;
+  }
+
+  /* コンテンツ：パディングを減らす */
+  .mypage-content {
+    padding: 1rem;
+  }
+
+  /* セクション：パディングを減らす */
+  .profile-section,
+  .security-section,
+  .account-section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ボタングループ：スマートフォンではスタック */
+  .button-group {
+    flex-direction: column;
+  }
+
+  /* ボタン：フルウィッド */
+  .button-group button {
+    width: 100%;
+  }
+}

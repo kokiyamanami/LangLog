@@ -1,0 +1,115 @@
+/* ====================================
+   AuthForm コンポーネントのスタイル
+   フォーム全体、入力フィールド、ボタンのデザイン
+   ==================================== */
+
+/* フォーム全体：flex レイアウトで要素を縦に配置、1.2rem の間隔 */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* フォームグループ：ラベルと入力フィールドをまとめる */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ラベルスタイル：太字、濃いグレー、小さめのサイズ */
+.form-group label {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.9rem;
+}
+
+/* パスワード入力グループ：相対位置で目アイコンを絶対配置 */
+.password-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 入力フィールド：パディング、薄いグレー枠、rounded コーナー */
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+/* パスワード入力フィールド：右側にパディングを追加（アイコン用） */
+.password-input-group input {
+  padding-right: 2.5rem;
+}
+
+/* 入力フィールドフォーカス状態：青い枠と薄い青い背景 */
+.form-group input:focus {
+  outline: none;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* パスワード表示/非表示切り替えボタン：絶対配置で右側に配置 */
+.password-toggle-button {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* パスワード切り替えボタンホバー：透明度を低下させて視覚フィードバック */
+.password-toggle-button:hover {
+  opacity: 0.7;
+}
+
+/* パスワードアイコン：青色の1.2rem正方形 */
+.password-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: #0052cc;
+}
+
+/* エラーメッセージ：赤い背景に左ボーダー、小さいフォント */
+.error-message {
+  color: #d32f2f;
+  font-size: 0.8rem;
+  padding: 0.75rem;
+  background: #ffebee;
+  border-radius: 4px;
+  border-left: 3px solid #d32f2f;
+}
+
+/* 送信ボタン：青い背景、白いテキスト、rounded コーナー */
+.submit-button {
+  padding: 0.9rem;
+  background: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+/* 送信ボタンホバー：より濃い青に変更、影を追加（disabled状態を除く） */
+.submit-button:hover:not(:disabled) {
+  background: #0041a8;
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.25);
+}
+
+/* 送信ボタンdisabled状態：薄いグレーで視覚的に無効を示す */
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

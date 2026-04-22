@@ -1,0 +1,60 @@
+/* ====================================
+   LoginPage のスタイル
+   ログイン/新規登録ページのデザイン
+   ==================================== */
+
+/* ログインページ全体：中央配置、最小高さ 100vh */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: white;
+  padding: 20px;
+}
+
+/* ログインコンテナ：白い背景、パディング、subtle な影とボーダー */
+.login-container {
+  background: white;
+  padding: 3rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #f0f0f0;
+}
+
+/* ログインコンテナタイトル：センター配置、大きいフォント、濃いグレー色 */
+.login-container h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* トグルセクション：ログイン/新規登録モード切り替え用 */
+.toggle-section {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* トグルボタン：青いテキスト、アンダーラインなし、ホバー時にアンダーライン */
+.toggle-button {
+  background: none;
+  color: #0052cc;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+  padding: 0;
+  font-weight: 600;
+}
+
+/* トグルボタンホバー状態：アンダーラインを表示 */
+.toggle-button:hover {
+  text-decoration: underline;
+}

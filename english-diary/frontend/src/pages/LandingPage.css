@@ -1,0 +1,640 @@
+/* ====================================
+   LandingPage - モバイルファースト設計
+   ==================================== */
+
+.landing-page {
+  min-height: 100vh;
+  background: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ====================================
+   ヘッダー
+   ==================================== */
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.landing-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.landing-logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0052cc;
+  margin: 0;
+}
+
+.landing-cta-button {
+  background: linear-gradient(135deg, #0052cc 0%, #003a9d 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.landing-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+/* ====================================
+   ヒーロー
+   ==================================== */
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
+}
+
+.hero-content {
+  width: 100%;
+  max-width: 100%;
+}
+
+.hero-content h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+.hero-content p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.hero-image {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-image img,
+.hero-image svg {
+  width: 100%;
+  height: auto;
+}
+
+.hero-cta-button {
+  background: linear-gradient(135deg, #0052cc 0%, #003a9d 100%);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+  margin: 0 auto;
+  display: block;
+}
+
+.hero-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 82, 204, 0.3);
+}
+
+/* ====================================
+   セクション共通
+   ==================================== */
+
+section {
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+section h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ====================================
+   特徴セクション
+   ==================================== */
+
+.features-section {
+  background: #f8f9fb;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 82, 204, 0.12);
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  margin: 0 auto 0.75rem;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+  border-radius: 10px;
+}
+
+.feature-icon svg {
+  width: 26px;
+  height: 26px;
+  color: #0052cc;
+  stroke: #0052cc;
+  stroke-width: 1.5;
+}
+
+.feature-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.feature-card p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ====================================
+   フロー
+   ==================================== */
+
+.flow-section {
+  background: white;
+}
+
+.flow-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.flow-arrow {
+  display: none;
+}
+
+.flow-step {
+  background: white;
+  border: 2px solid #0052cc;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.step-number {
+  background: linear-gradient(135deg, #0052cc 0%, #003a9d 100%);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 auto 0.75rem auto;
+}
+
+.flow-step h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.4rem 0;
+}
+
+.flow-step p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ====================================
+   統計
+   ==================================== */
+
+.stats-section {
+  background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
+}
+
+.stats-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+.stat {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0052cc;
+}
+
+.stat-item {
+  background: white;
+  padding: 1.2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ====================================
+   ユーザーの声
+   ==================================== */
+
+.testimonials-section {
+  background: white;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+}
+
+.testimonial-card {
+  background: #f8f9fb;
+  padding: 1.2rem;
+  border-left: 4px solid #0052cc;
+  border-radius: 8px;
+}
+
+.testimonial-stars {
+  font-size: 1rem;
+  color: #ffc107;
+  margin-bottom: 0.5rem;
+}
+
+.testimonial-text {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.testimonial-author {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.testimonial-title {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 0.2rem;
+}
+
+/* ====================================
+   FAQ
+   ==================================== */
+
+.faq-section {
+  background: #f8f9fb;
+}
+
+.faq-container {
+  max-width: 100%;
+}
+
+.faq-item {
+  background: white;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.faq-item summary {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.75rem 0 0 0;
+  line-height: 1.5;
+}
+
+/* ====================================
+   最終CTA
+   ==================================== */
+
+.final-cta-section {
+  background: linear-gradient(135deg, #0052cc 0%, #003a9d 100%);
+  color: white;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.final-cta-section h2 {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.final-cta-section p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.final-cta-button {
+  background: white;
+  color: #0052cc;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.final-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ====================================
+   フッター
+   ==================================== */
+
+.landing-footer {
+  background: #1a1a1a;
+  color: white;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+.landing-footer p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* ====================================
+   タブレット（768px以上）
+   ==================================== */
+
+@media (min-width: 768px) {
+  .landing-logo {
+    font-size: 1.3rem;
+  }
+
+  .landing-cta-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .hero-section {
+    padding: 3rem 2rem;
+  }
+
+  .hero-content h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-content p {
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+  }
+
+  section {
+    padding: 3rem 2rem;
+  }
+
+  section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  .feature-icon {
+    width: 55px;
+    height: 55px;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9rem;
+  }
+
+  .flow-container {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .flow-arrow {
+    display: block;
+    font-size: 1.5rem;
+    color: #0052cc;
+    align-self: center;
+  }
+
+  .flow-step {
+    width: 200px;
+    min-height: auto;
+  }
+
+  .stats-content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-item {
+    padding: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2.2rem;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .final-cta-section p {
+    font-size: 1rem;
+  }
+}
+
+/* ====================================
+   デスクトップ（1024px以上）
+   ==================================== */
+
+@media (min-width: 1024px) {
+  section {
+    padding: 4rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  section h2 {
+    font-size: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .feature-icon {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 1rem;
+  }
+
+  .feature-icon svg {
+    width: 35px;
+    height: 35px;
+  }
+
+  .stat-item {
+    padding: 2rem 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .hero-section {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    padding: 4rem 2rem;
+    gap: 3rem;
+  }
+
+  .hero-content {
+    flex: 1;
+    max-width: 500px;
+  }
+
+  .hero-image {
+    flex: 1;
+    max-width: 450px;
+  }
+
+  .hero-content h2 {
+    font-size: 2.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+}
