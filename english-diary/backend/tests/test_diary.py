@@ -172,3 +172,166 @@ class TestDiaryList:
         response = client.get("/api/v1/diary/")
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+class TestDiaryUpdate:
+    """日記更新テスト"""
+    
+    def test_update_diary_success(self, client, auth_headers):
+        """日記更新成功"""
+        # 日記作成
+        create_response = client.post(
+            "/api/v1/diary/",
+            json={"original_text": "Initial diary"},
+            headers=auth_headers
+        )
+        diary_id = create_response.json()["id"]
+        
+        # 日記更新
+        update_response = client.put(
+            f"/api/v1/diary/{diary_id}",
+            json={"original_text": "Updated diary"},
+            headers=auth_headers
+        )
+        
+        assert update_response.status_code == status.HTTP_200_OK
+        data = update_response.json()
+        assert data["original_text"] == "Updated diary"
+    
+    def test_update_nonexistent_diary(self, client, auth_headers):
+        """存在しない日記の更新失敗"""
+        response = client.put(
+            "/api/v1/diary/00000000-0000-0000-0000-000000000000",
+            json={"original_text": "Updated"},
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+    
+    def test_update_diary_unauthorized(self, client):
+        """認証なしの日記更新失敗"""
+        response = client.put(
+            "/api/v1/diary/00000000-0000-0000-0000-000000000000",
+            json={"original_text": "Updated"}
+        )
+        
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+class TestDiaryDelete:
+    """日記削除テスト"""
+    
+    def test_delete_diary_success(self, client, auth_headers):
+        """日記削除成功"""
+        # 日記作成
+        create_response = client.post(
+            "/api/v1/diary/",
+            json={"original_text": "To be deleted"},
+            headers=auth_headers
+        )
+        diary_id = create_response.json()["id"]
+        
+        # 日記削除
+        delete_response = client.delete(
+            f"/api/v1/diary/{diary_id}",
+            headers=auth_headers
+        )
+        
+        assert delete_response.status_code in (status.HTTP_200_OK, status.HTTP_204_NO_CONTENT)
+        
+        # 削除後は取得できないこと
+        get_response = client.get(
+            f"/api/v1/diary/{diary_id}",
+            headers=auth_headers
+        )
+        assert get_response.status_code == status.HTTP_404_NOT_FOUND
+    
+    def test_delete_nonexistent_diary(self, client, auth_headers):
+        """存在しない日記の削除"""
+        response = client.delete(
+            "/api/v1/diary/00000000-0000-0000-0000-000000000000",
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+class TestDiaryContentValidation:
+    """日記内容バリデーションテスト"""
+    
+    def test_diary_with_newlines(self, client, auth_headers):
+        """改行を含む日記"""
+        diary_data = {
+            "original_text": "First line\nSecond line\nThird line"
+        }
+        
+        response = client.post(
+            "/api/v1/diary/",
+            json=diary_data,
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_201_CREATED
+        data = response.json()
+        assert "\n" in data["original_text"]
+    
+    def test_diary_with_tabs(self, client, auth_headers):
+        """タブを含む日記"""
+        diary_data = {
+            "original_text": "Line1\tTabbed\tContent"
+        }
+        
+        response = client.post(
+            "/api/v1/diary/",
+            json=diary_data,
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_201_CREATED
+    
+    def test_diary_with_mixed_punctuation(self, client, auth_headers):
+        """複雑な句読点を含む日記"""
+        diary_data = {
+            "original_text": "Hello! How are you? I'm fine, thanks. Really! (Yes, really.) [1]"
+        }
+        
+        response = client.post(
+            "/api/v1/diary/",
+            json=diary_data,
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_201_CREATED
+    
+    def test_diary_with_urls(self, client, auth_headers):
+        """URL を含む日記"""
+        diary_data = {
+            "original_text": "I visited https://www.example.com today. Check it out: http://example.co.jp/path?param=value"
+        }
+        
+        response = client.post(
+            "/api/v1/diary/",
+            json=diary_data,
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_201_CREATED
+    
+    def test_diary_response_contains_corrections(self, client, auth_headers):
+        """日記レスポンスに修正情報が含まれること"""
+        diary_data = {
+            "original_text": "I goed to the park yesterday"
+        }
+        
+        response = client.post(
+            "/api/v1/diary/",
+            json=diary_data,
+            headers=auth_headers
+        )
+        
+        assert response.status_code == status.HTTP_201_CREATED
+        data = response.json()
+        
+        # レスポンスに corrections フィールドが含まれる
+        assert "corrections" in data
+        assert isinstance(data["corrections"], (list, dict))

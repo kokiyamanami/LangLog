@@ -109,12 +109,15 @@ pytest --cov=app --cov-report=term-missing
 ## テスト用フィクスチャ
 
 ### `db_session`
+
 テスト用のデータベースセッション（トランザクション分離）
 
 ### `client`
+
 FastAPI TestClient インスタンス
 
 ### `test_user_data`
+
 テスト用ユーザー情報
 
 ```python
@@ -126,12 +129,15 @@ FastAPI TestClient インスタンス
 ```
 
 ### `test_user`
+
 DB に保存されたテストユーザー
 
 ### `auth_token`
+
 認証テスト用のアクセストークン
 
 ### `auth_headers`
+
 認証ヘッダー
 
 ```python
@@ -146,13 +152,13 @@ def test_create_diary_success(self, client, auth_headers):
     diary_data = {
         "original_text": "Test diary content"
     }
-    
+
     response = client.post(
         "/api/v1/diary/",
         json=diary_data,
         headers=auth_headers
     )
-    
+
     assert response.status_code == 201
     assert response.json()["original_text"] == diary_data["original_text"]
 ```

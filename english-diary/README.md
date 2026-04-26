@@ -200,6 +200,7 @@ pytest tests/test_auth.py::TestUserRegistration::test_register_success -v
 ### CI/CD パイプライン
 
 GitHub Actions で以下が自動実行されます：
+
 - ✅ pytest でテスト実行
 - ✅ カバレッジレポート生成
 - ✅ Codecov へのアップロード

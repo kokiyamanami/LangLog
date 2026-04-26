@@ -6,14 +6,14 @@ on:
       - main
       - develop
     paths:
-      - 'english-diary/backend/**'
-      - '.github/workflows/test.yml'
+      - "english-diary/backend/**"
+      - ".github/workflows/test.yml"
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'english-diary/backend/**'
+      - "english-diary/backend/**"
 
 # Note: See backend-test.yml for the main backend test workflow
 # This workflow is kept for backward compatibility

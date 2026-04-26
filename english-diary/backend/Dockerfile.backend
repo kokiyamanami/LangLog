@@ -1,0 +1,49 @@
+# ============================================
+# FastAPI バックエンドコンテナ
+# ============================================
+# 役割：RESTful API サーバー
+# ポート：8000
+# ベース：Python 3.11 slim（イメージサイズ最小化）
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# システム依存関係のインストール
+# slim イメージにはコンパイラが含まれていないため明示的にインストール
+# gcc：C 拡張ビルド用（numpy など）
+# postgresql-client：DB マイグレーション・接続テスト用
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    postgresql-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 依存ライブラリのインストール
+# --no-cache-dir：キャッシュを保存しないでイメージサイズを削減
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# アプリケーションコードをコピー
+COPY . .
+
+# ============================================
+# ヘルスチェック設定
+# ============================================
+# ECS が定期的にこのコマンドを実行
+# 失敗が続くと自動的にコンテナを再起動
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/api/v1/auth/me || exit 1
+
+# ============================================
+# API ポート公開
+# ============================================
+EXPOSE 8000
+
+# ============================================
+# アプリケーション起動
+# ============================================
+# uvicorn：FastAPI 用の ASGI サーバー
+# --host 0.0.0.0：すべてのネットワークインターフェースをリッスン
+# --port 8000：指定されたポートでリッスン
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

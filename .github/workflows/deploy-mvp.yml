@@ -1,0 +1,377 @@
+# ============================================
+# GitHub Actions CI/CD パイプライン
+# ============================================
+# 概要：
+# 1. コミット時に自動トリガー
+# 2. バックエンドテスト実行
+# 3. FastAPI イメージビルド・ECR プッシュ
+# 4. Nginx（フロントエンド）イメージビルド・ECR プッシュ
+# 5. ECS タスク定義更新
+# 6. ECS サービス更新（自動デプロイ）
+# 7. Slack 通知
+#
+# 実行フロー：
+# test-backend → (並列) build-backend, build-frontend → deploy → notify
+
+name: Deploy PoC to AWS (Multi-Container)
+
+# ============================================
+# トリガー条件
+# ============================================
+on:
+  # main ブランチへのプッシュで自動実行
+  # パス指定：これらのファイル変更時のみ実行（CI 不要な変更をスキップ）
+  push:
+    branches: [main]
+    paths:
+      - "english-diary/backend/**"
+      - "english-diary/frontend/**"
+      - "nginx.conf"
+      - ".github/workflows/deploy-mvp.yml"
+  # 手動トリガー（GitHub UI から実行可能）
+  workflow_dispatch:
+
+# ============================================
+# 環境変数
+# ============================================
+env:
+  AWS_REGION: ap-northeast-1 # 東京リージョン
+
+# ============================================
+# ジョブ定義
+# ============================================
+jobs:
+  # ============================================
+  # ジョブ 1: バックエンドテスト
+  # ============================================
+  # 役割：
+  # - pytest でユニットテスト実行
+  # - 本番ビルドの前にコード品質を確認
+  # - テスト失敗時はビルドをスキップ（ゲートキーパー）
+  # 実行環境：
+  # - Ubuntu 最新版
+  # - PostgreSQL 15（テスト用、一時的）
+  test-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: langlog_test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          cd english-diary/backend
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        env:
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/langlog_test
+        run: |
+          cd english-diary/backend
+          # コード品質メトリクス付きでテスト実行
+          # --cov：カバレッジ測定
+          # --cov-report=term-missing：カバレッジレポート表示
+          pytest tests/ -v --cov=app --cov-report=term-missing
+
+  # ============================================
+  # ジョブ 2: FastAPI イメージビルド・ECR プッシュ
+  # ============================================
+  # 役割：
+  # - FastAPI バックエンドを Docker イメージ化
+  # - AWS ECR（Elastic Container Registry）にプッシュ
+  # 条件：test-backend 成功時のみ実行
+  # タグ戦略：
+  # - git commit hash（例：abc123）→ 一意性確保、デバッグ時に役立つ
+  # - latest → 最新版を常に指す（デプロイ時に使用）
+  build-backend:
+    needs: test-backend
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          # AWS 認証情報から ECR レジストリ URL を構築
+          # 形式：<account-id>.dkr.ecr.<region>.amazonaws.com
+          REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          # AWS CLI で取得したトークンを docker login に渡す
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+            docker login --username AWS --password-stdin $REGISTRY
+          echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
+
+      - name: Build and push FastAPI image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # FastAPI イメージのビルド
+          cd english-diary/backend
+          # 2 つのタグで同時ビルド
+          # - IMAGE_TAG（${{ github.sha }}）：git commit hash
+          # - latest：最新版ポインタ
+          docker build -t $ECR_REGISTRY/langlog-api:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/langlog-api:latest .
+          # ECR へプッシュ
+          docker push $ECR_REGISTRY/langlog-api:$IMAGE_TAG
+          docker push $ECR_REGISTRY/langlog-api:latest
+          echo "Backend image pushed: $ECR_REGISTRY/langlog-api:$IMAGE_TAG"
+
+  # ============================================
+  # ジョブ 3: Nginx（フロントエンド）イメージビルド・ECR プッシュ
+  # ============================================
+  # 役割：
+  # - React アプリ + Nginx イメージをビルド
+  # - FastAPI へのプロキシ設定を含む
+  # - AWS ECR にプッシュ
+  # 条件：test-backend 成功時のみ実行
+  # 実行内容：
+  # 1. Node.js 18 のセットアップ（npm 実行用）
+  # 2. React ビルド（npm run build → dist/ 生成）
+  # 3. Docker イメージビルド（Dockerfile.frontend から）
+  # 4. ECR プッシュ
+  build-frontend:
+    needs: test-backend
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Build frontend
+        run: |
+          # React ビルド（Vite → dist/ に最適化版生成）
+          cd english-diary/frontend
+          npm ci
+          npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+            docker login --username AWS --password-stdin $REGISTRY
+          echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
+
+      - name: Build and push Nginx image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Nginx イメージのビルド（React dist + nginx.conf）
+          cd english-diary/frontend
+          # マルチステージビルド実行
+          docker build -f Dockerfile.frontend \
+                       -t $ECR_REGISTRY/langlog-frontend:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/langlog-frontend:latest .
+          # ECR へプッシュ
+          docker push $ECR_REGISTRY/langlog-frontend:$IMAGE_TAG
+          docker push $ECR_REGISTRY/langlog-frontend:latest
+          echo "Frontend image pushed: $ECR_REGISTRY/langlog-frontend:$IMAGE_TAG"
+
+  # ============================================
+  # ジョブ 4: ECS デプロイ
+  # ============================================
+  # 役割：
+  # - build-backend, build-frontend 完了後に実行
+  # 実行内容：
+  # 1. 既存タスク定義を取得
+  # 2. 新しいイメージ URI に更新（git commit hash）
+  # 3. 新リビジョンでタスク定義登録
+  # 4. ECS サービス更新（rolling deployment）
+  # 5. デプロイ完了待機
+  # 6. ECS タスク の public IP 取得
+  # 7. アクセス URL をログ出力
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update ECS task definition
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # ============================================
+          # タスク定義の更新フロー
+          # ============================================
+
+          # ステップ 1: AWS から既存タスク定義を JSON で取得
+          aws ecs describe-task-definition \
+            --task-definition langlog-poc-task \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskDefinition' > task-definition.json
+
+          # ステップ 2: FastAPI イメージ URI を新バージョンに置換
+          # 既存：xxx.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:<old-hash>
+          # 新規：xxx.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:<new-hash>
+          sed -i "s|\"image\": \".*langlog-api.*\"|\"image\": \"$ECR_REGISTRY/langlog-api:$IMAGE_TAG\"|g" \
+            task-definition.json
+
+          # ステップ 3: Nginx イメージ URI を新バージョンに置換
+          sed -i "s|\"image\": \".*langlog-frontend.*\"|\"image\": \"$ECR_REGISTRY/langlog-frontend:$IMAGE_TAG\"|g" \
+            task-definition.json
+
+          # ステップ 4: 新しいリビジョンでタスク定義を登録
+          # AWS は自動的にリビジョン番号をインクリメント
+          aws ecs register-task-definition \
+            --cli-input-json file://task-definition.json \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Update ECS service
+        run: |
+          # ============================================
+          # ECS サービス更新（デプロイ開始）
+          # ============================================
+          # --force-new-deployment：
+          # - rolling deployment を開始
+          # - 古いタスク停止 → 新タスク起動（ダウンタイムなし）
+          # - --task-definition は最新リビジョンを自動指定
+          aws ecs update-service \
+            --cluster langlog-cluster \
+            --service langlog-poc-service \
+            --task-definition langlog-poc-task \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Wait for deployment
+        run: |
+          # ============================================
+          # デプロイ完了待機
+          # ============================================
+          # aws ecs wait services-stable：
+          # - サービス内の全タスクが RUNNING かつ healthy まで待機
+          # - タイムアウト：デフォルト 40 分
+          # - ポーリング間隔：15 秒
+          aws ecs wait services-stable \
+            --cluster langlog-cluster \
+            --services langlog-poc-service \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Get ECS task public IP
+        run: |
+          # ============================================
+          # ECS タスク情報取得 → public IP 抽出
+          # ============================================
+
+          # ステップ 1: サービス内のタスク ARN を取得
+          TASK_ARN=$(aws ecs list-tasks \
+            --cluster langlog-cluster \
+            --service-name langlog-poc-service \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskArns[0]' --output text)
+
+          # ステップ 2: タスク起動直後の場合、リトライ
+          if [ -z "$TASK_ARN" ] || [ "$TASK_ARN" = "None" ]; then
+            echo "⏳ Task starting, checking again..."
+            sleep 10
+            TASK_ARN=$(aws ecs list-tasks \
+              --cluster langlog-cluster \
+              --service-name langlog-poc-service \
+              --region ${{ env.AWS_REGION }} \
+              --query 'taskArns[0]' --output text)
+          fi
+
+          # ステップ 3: タスク詳細から public IP を抽出
+          # タスク → attachments → ElasticNetworkInterface → publicIpv4Address
+          PUBLIC_IP=$(aws ecs describe-tasks \
+            --cluster langlog-cluster \
+            --tasks $TASK_ARN \
+            --region ${{ env.AWS_REGION }} \
+            --query 'tasks[0].attachments[?type==`ElasticNetworkInterface`].details[?name==`publicIpv4Address`].value' \
+            --output text)
+
+          # ステップ 4: アクセス URL をコンソール出力
+          echo "✅ Deployment Complete!"
+          echo ""
+          echo "🚀 Access URLs:"
+          echo "  Frontend: http://$PUBLIC_IP/"
+          echo "  API Docs: http://$PUBLIC_IP/docs"
+          echo "  Health: http://$PUBLIC_IP/health"
+          echo ""
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref }}"
+
+  # ============================================
+  # ジョブ 5: Slack 通知（オプション）
+  # ============================================
+  # 役割：
+  # - デプロイ結果を Slack チャンネルに通知
+  # 条件：deploy ジョブ後（成功 or 失敗）
+  # 設定：secrets.SLACK_WEBHOOK が必要
+  notify:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Slack notification
+        if: ${{ secrets.SLACK_WEBHOOK != '' }}
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "LangLog PoC デプロイ",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deploy Status:*\n${{ needs.deploy.result == 'success' && '✅ SUCCESS' || '❌ FAILED' }}\n\nCommit: `${{ github.sha }}`\nBranch: `${{ github.ref }}`"
+                  }
+                }
+              ]
+            }

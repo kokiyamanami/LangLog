@@ -6,14 +6,14 @@ on:
       - main
       - develop
     paths:
-      - 'english-diary/backend/**'
-      - '.github/workflows/backend-test.yml'
+      - "english-diary/backend/**"
+      - ".github/workflows/backend-test.yml"
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'english-diary/backend/**'
+      - "english-diary/backend/**"
 
 jobs:
   test:

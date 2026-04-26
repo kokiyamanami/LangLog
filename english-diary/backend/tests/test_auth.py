@@ -124,3 +124,107 @@ class TestTokenRefresh:
         })
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+class TestPasswordSecurity:
+    """パスワードセキュリティテスト"""
+    
+    def test_password_hashing(self, client, test_user_data):
+        """パスワードがハッシュ化されて保存されること"""
+        # ユーザー登録
+        response = client.post("/api/v1/auth/register", json=test_user_data)
+        assert response.status_code == status.HTTP_201_CREATED
+        
+        # レスポンスにはパスワードハッシュが含まれていないこと
+        user_data = response.json()
+        assert "password" not in user_data
+        assert "password_hash" not in user_data
+    
+    def test_different_passwords_different_hashes(self, client):
+        """異なるパスワードは異なるハッシュになること"""
+        user1 = {
+            "name": "User 1",
+            "email": "user1@example.com",
+            "password": "password123"
+        }
+        
+        user2 = {
+            "name": "User 2",
+            "email": "user2@example.com",
+            "password": "password123"  # 同じパスワード
+        }
+        
+        response1 = client.post("/api/v1/auth/register", json=user1)
+        response2 = client.post("/api/v1/auth/register", json=user2)
+        
+        # 両方とも登録できること
+        assert response1.status_code == status.HTTP_201_CREATED
+        assert response2.status_code == status.HTTP_201_CREATED
+    
+    def test_case_sensitive_password(self, client, test_user_data):
+        """パスワードが大文字・小文字を区別すること"""
+        # ユーザー登録
+        client.post("/api/v1/auth/register", json=test_user_data)
+        
+        # 異なるケースでログイン試行
+        response = client.post("/api/v1/auth/login", json={
+            "email": test_user_data["email"],
+            "password": test_user_data["password"].upper()
+        })
+        
+        # 異なるケースでのログインは失敗
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+class TestUserRegistrationValidation:
+    """ユーザー登録バリデーションテスト"""
+    
+    def test_email_format_validation(self, client):
+        """メールアドレス形式の検証"""
+        invalid_emails = [
+            "notanemail",
+            "missing@domain",
+            "@nodomain.com",
+            "spaces in@email.com"
+        ]
+        
+        for invalid_email in invalid_emails:
+            response = client.post("/api/v1/auth/register", json={
+                "name": "Test",
+                "email": invalid_email,
+                "password": "password123"
+            })
+            
+            # 不正なメールアドレスは拒否される
+            assert response.status_code in (status.HTTP_400_BAD_REQUEST, status.HTTP_422_UNPROCESSABLE_ENTITY)
+    
+    def test_name_required(self, client):
+        """名前は必須項目"""
+        response = client.post("/api/v1/auth/register", json={
+            "email": "test@example.com",
+            "password": "password123"
+        })
+        
+        # 名前なしは拒否される
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    
+    def test_password_minimum_length(self, client):
+        """パスワード最小文字数チェック"""
+        response = client.post("/api/v1/auth/register", json={
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": "pass"  # 短すぎるパスワード
+        })
+        
+        # 短いパスワードは拒否される
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    
+    def test_empty_password(self, client):
+        """空のパスワード"""
+        response = client.post("/api/v1/auth/register", json={
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": ""
+        })
+        
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

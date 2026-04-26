@@ -67,6 +67,7 @@ chmod +x run-tests.sh
 **ファイル**: `.github/workflows/backend-test.yml`
 
 **トリガー条件**:
+
 - main/develop ブランチへの push
 - main/develop ブランチへの PR
 - `english-diary/backend/**` ファイルの変更
