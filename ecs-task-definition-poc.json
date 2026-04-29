@@ -1,13 +1,16 @@
 {
   "family": "langlog-poc-task",
   "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
   "cpu": "1024",
   "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::389323710086:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "fastapi",
-      "image": "ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:latest",
+      "image": "389323710086.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:latest",
       "essential": true,
       "portMappings": [
         {
@@ -37,7 +40,7 @@
       "healthCheck": {
         "command": [
           "CMD-SHELL",
-          "curl -f http://localhost:8000/api/v1/auth/me || exit 1"
+          "curl -f http://localhost:8000/health || exit 1"
         ],
         "interval": 30,
         "timeout": 10,
@@ -47,7 +50,7 @@
     },
     {
       "name": "nginx",
-      "image": "ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-frontend:latest",
+      "image": "389323710086.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-frontend:latest",
       "essential": true,
       "portMappings": [
         {
@@ -55,9 +58,6 @@
           "hostPort": 80,
           "protocol": "tcp"
         }
-      ],
-      "links": [
-        "fastapi:fastapi"
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
@@ -76,13 +76,7 @@
         "timeout": 10,
         "retries": 3,
         "startPeriod": 20
-      },
-      "dependsOn": [
-        {
-          "containerName": "fastapi",
-          "condition": "HEALTHY"
-        }
-      ]
+      }
     }
   ]
 }

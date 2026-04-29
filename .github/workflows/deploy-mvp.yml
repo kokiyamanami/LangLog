@@ -252,11 +252,24 @@ jobs:
           # タスク定義の更新フロー
           # ============================================
 
-          # ステップ 1: AWS から既存タスク定義を JSON で取得
-          aws ecs describe-task-definition \
+          # ステップ 1: AWS から既存タスク定義を取得（初回はローカルファイルを使用）
+          if aws ecs describe-task-definition \
             --task-definition langlog-poc-task \
             --region ${{ env.AWS_REGION }} \
-            --query 'taskDefinition' > task-definition.json
+            --query 'taskDefinition' > task-definition.json 2>/dev/null; then
+            echo "Existing task definition found, updating image URIs..."
+          else
+            echo "Task definition not found, registering from local file..."
+            # ローカルのベースファイルを初回登録
+            aws ecs register-task-definition \
+              --cli-input-json file://ecs-task-definition-poc.json \
+              --region ${{ env.AWS_REGION }}
+            # 登録後に再取得
+            aws ecs describe-task-definition \
+              --task-definition langlog-poc-task \
+              --region ${{ env.AWS_REGION }} \
+              --query 'taskDefinition' > task-definition.json
+          fi
 
           # ステップ 2: FastAPI イメージ URI を新バージョンに置換
           # 既存：xxx.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:<old-hash>
