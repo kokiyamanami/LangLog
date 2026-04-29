@@ -58,6 +58,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_DB: langlog_test
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: test
         options: >-
           --health-cmd pg_isready
@@ -73,6 +74,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: english-diary/backend/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -88,7 +91,7 @@ jobs:
           # コード品質メトリクス付きでテスト実行
           # --cov：カバレッジ測定
           # --cov-report=term-missing：カバレッジレポート表示
-          pytest tests/ -v --cov=app --cov-report=term-missing
+          python -m pytest tests/ -v --cov=app --cov-report=term-missing
 
   # ============================================
   # ジョブ 2: FastAPI イメージビルド・ECR プッシュ
@@ -168,17 +171,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-
-      - name: Build frontend
-        run: |
-          # React ビルド（Vite → dist/ に最適化版生成）
-          cd english-diary/frontend
-          npm ci
-          npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -266,10 +258,14 @@ jobs:
           sed -i "s|\"image\": \".*langlog-frontend.*\"|\"image\": \"$ECR_REGISTRY/langlog-frontend:$IMAGE_TAG\"|g" \
             task-definition.json
 
-          # ステップ 4: 新しいリビジョンでタスク定義を登録
+          # ステップ 4: AWS管理の読み取り専用フィールドを除去（register時にエラーになるため）
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+            task-definition.json > task-definition-clean.json
+
+          # ステップ 5: 新しいリビジョンでタスク定義を登録
           # AWS は自動的にリビジョン番号をインクリメント
           aws ecs register-task-definition \
-            --cli-input-json file://task-definition.json \
+            --cli-input-json file://task-definition-clean.json \
             --region ${{ env.AWS_REGION }}
 
       - name: Update ECS service
