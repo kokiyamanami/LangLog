@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 import re
@@ -181,7 +181,7 @@ async def get_diary(
 async def list_diaries(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    skip: int = 0,
+    skip: int = Query(0, ge=0),
     limit: int = 20
 ):
     """

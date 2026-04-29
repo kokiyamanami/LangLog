@@ -45,7 +45,7 @@ class TestTimeoutHandling:
         start_time = time.time()
         
         response = client.get(
-            "/api/v1/auth/me",
+            "/api/v1/users/profile",
             headers=auth_headers
         )
         
@@ -105,7 +105,7 @@ class TestMemoryAndConnectionPool:
         """複数の逐次リクエスト"""
         for i in range(20):
             response = client.get(
-                "/api/v1/auth/me",
+                "/api/v1/users/profile",
                 headers=auth_headers
             )
             
@@ -119,7 +119,7 @@ class TestMemoryAndConnectionPool:
         
         for i in range(5):
             response = client.get(
-                "/api/v1/auth/me",
+                "/api/v1/users/profile",
                 headers=auth_headers
             )
             responses.append(response.status_code)

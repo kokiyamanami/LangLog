@@ -127,7 +127,7 @@ def change_password(
         dict: 成功メッセージ
     """
     # 現在のパスワードが正しいか確認
-    if not pwd_context.verify(password_data.current_password, current_user.hashed_password):
+    if not pwd_context.verify(password_data.current_password, current_user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Current password is incorrect"
