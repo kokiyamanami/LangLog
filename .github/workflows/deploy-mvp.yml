@@ -131,6 +131,11 @@ jobs:
             docker login --username AWS --password-stdin $REGISTRY
           echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
 
+      - name: Create ECR repository if not exists
+        run: |
+          aws ecr describe-repositories --repository-names langlog-api --region ${{ env.AWS_REGION }} || \
+          aws ecr create-repository --repository-name langlog-api --region ${{ env.AWS_REGION }}
+
       - name: Build and push FastAPI image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -186,6 +191,11 @@ jobs:
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
             docker login --username AWS --password-stdin $REGISTRY
           echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
+
+      - name: Create ECR repository if not exists
+        run: |
+          aws ecr describe-repositories --repository-names langlog-frontend --region ${{ env.AWS_REGION }} || \
+          aws ecr create-repository --repository-name langlog-frontend --region ${{ env.AWS_REGION }}
 
       - name: Build and push Nginx image
         env:
