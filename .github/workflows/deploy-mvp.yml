@@ -139,7 +139,8 @@ jobs:
           # - IMAGE_TAG（${{ github.sha }}）：git commit hash
           # - latest：最新版ポインタ
           docker build -t $ECR_REGISTRY/langlog-api:$IMAGE_TAG \
-                       -t $ECR_REGISTRY/langlog-api:latest .
+                       -t $ECR_REGISTRY/langlog-api:latest \
+                       -f Dockerfile.backend .
           # ECR へプッシュ
           docker push $ECR_REGISTRY/langlog-api:$IMAGE_TAG
           docker push $ECR_REGISTRY/langlog-api:latest
