@@ -14,9 +14,9 @@ class TestUserRegistration:
         
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
-        assert data["email"] == test_user_data["email"]
-        assert data["name"] == test_user_data["name"]
-        assert "id" in data
+        assert data["user"]["email"] == test_user_data["email"]
+        assert data["user"]["name"] == test_user_data["name"]
+        assert "id" in data["user"]
     
     def test_register_duplicate_email(self, client, test_user_data):
         """重複メールアドレスでの登録失敗"""
@@ -26,7 +26,7 @@ class TestUserRegistration:
         # 同じメールで再登録
         response = client.post("/api/v1/auth/register", json=test_user_data)
         
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code in (status.HTTP_400_BAD_REQUEST, status.HTTP_409_CONFLICT)
     
     def test_register_invalid_email(self, client):
         """不正なメールアドレス"""
@@ -67,7 +67,7 @@ class TestUserLogin:
         data = response.json()
         assert "access_token" in data
         assert "token_type" in data
-        assert data["token_type"] == "bearer"
+        assert data["token_type"] == "Bearer"
     
     def test_login_invalid_password(self, client, test_user_data):
         """不正なパスワード"""

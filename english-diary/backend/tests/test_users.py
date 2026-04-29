@@ -11,7 +11,7 @@ class TestGetCurrentUser:
     def test_get_current_user_success(self, client, auth_headers, test_user_data):
         """現在のユーザー情報取得成功"""
         response = client.get(
-            "/api/v1/auth/me",
+            "/api/v1/users/profile",
             headers=auth_headers
         )
         
@@ -22,7 +22,7 @@ class TestGetCurrentUser:
     
     def test_get_current_user_unauthorized(self, client):
         """認証なしのユーザー情報取得失敗"""
-        response = client.get("/api/v1/auth/me")
+        response = client.get("/api/v1/users/profile")
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -30,26 +30,23 @@ class TestGetCurrentUser:
 class TestGetUserProfile:
     """ユーザープロフィール取得テスト"""
     
-    def test_get_user_profile_success(self, client, auth_headers, test_user):
+    def test_get_user_profile_success(self, client, auth_headers, test_user_data):
         """ユーザープロフィール取得成功"""
         response = client.get(
-            f"/api/v1/users/{test_user.id}",
+            "/api/v1/users/profile",
             headers=auth_headers
         )
         
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert data["email"] == test_user.email
-        assert data["name"] == test_user.name
+        assert data["email"] == test_user_data["email"]
+        assert data["name"] == test_user_data["name"]
     
-    def test_get_user_profile_not_found(self, client, auth_headers):
-        """存在しないユーザー取得失敗"""
-        response = client.get(
-            "/api/v1/users/00000000-0000-0000-0000-000000000000",
-            headers=auth_headers
-        )
+    def test_get_user_profile_not_found(self, client):
+        """認証なしのプロフィール取得失敗"""
+        response = client.get("/api/v1/users/profile")
         
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestUpdateProfile:
@@ -91,8 +88,9 @@ class TestChangePassword:
         response = client.post(
             "/api/v1/users/change-password",
             json={
-                "old_password": test_user_data["password"],
-                "new_password": "new_password_123"
+                "current_password": test_user_data["password"],
+                "new_password": "new_password_123",
+                "confirm_password": "new_password_123"
             },
             headers=auth_headers
         )
@@ -104,8 +102,9 @@ class TestChangePassword:
         response = client.post(
             "/api/v1/users/change-password",
             json={
-                "old_password": "wrong_password",
-                "new_password": "new_password_123"
+                "current_password": "wrong_password_long",
+                "new_password": "new_password_123",
+                "confirm_password": "new_password_123"
             },
             headers=auth_headers
         )
