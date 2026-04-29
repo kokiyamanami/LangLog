@@ -254,7 +254,7 @@ jobs:
 
           # ステップ 1: AWS から既存タスク定義を取得（初回はローカルファイルを使用）
           if aws ecs describe-task-definition \
-            --task-definition langlog-poc-task \
+            --task-definition langlog-api-task \
             --region ${{ env.AWS_REGION }} \
             --query 'taskDefinition' > task-definition.json 2>/dev/null; then
             echo "Existing task definition found, updating image URIs..."
@@ -266,7 +266,7 @@ jobs:
               --region ${{ env.AWS_REGION }}
             # 登録後に再取得
             aws ecs describe-task-definition \
-              --task-definition langlog-poc-task \
+              --task-definition langlog-api-task \
               --region ${{ env.AWS_REGION }} \
               --query 'taskDefinition' > task-definition.json
           fi
@@ -314,31 +314,19 @@ jobs:
             aws ecs update-service \
               --cluster langlog-cluster \
               --service langlog-service \
-              --task-definition langlog-poc-task \
+              --task-definition langlog-api-task \
               --force-new-deployment \
               --region ${{ env.AWS_REGION }}
           else
             echo "Service not found, creating..."
 
-            # デフォルトVPCのサブネット・セキュリティグループを自動取得
-            SUBNET_ID=$(aws ec2 describe-subnets \
-              --region ${{ env.AWS_REGION }} \
-              --filters "Name=default-for-az,Values=true" \
-              --query "Subnets[0].SubnetId" --output text)
-            SG_ID=$(aws ec2 describe-security-groups \
-              --region ${{ env.AWS_REGION }} \
-              --filters "Name=group-name,Values=default" \
-              --query "SecurityGroups[0].GroupId" --output text)
-
-            echo "Using Subnet: $SUBNET_ID, SG: $SG_ID"
-
             aws ecs create-service \
               --cluster langlog-cluster \
               --service-name langlog-service \
-              --task-definition langlog-poc-task \
+              --task-definition langlog-api-task \
               --desired-count 1 \
               --launch-type FARGATE \
-              --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
+              --network-configuration "awsvpcConfiguration={subnets=[subnet-0258256c2dc597ae3],securityGroups=[sg-0ea37d3eb99355b2c],assignPublicIp=ENABLED}" \
               --region ${{ env.AWS_REGION }}
           fi
 

@@ -1,5 +1,5 @@
 {
-  "family": "langlog-poc-task",
+  "family": "langlog-api-task",
   "networkMode": "awsvpc",
   "requiresCompatibilities": [
     "FARGATE"
