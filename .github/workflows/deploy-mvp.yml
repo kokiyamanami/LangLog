@@ -243,6 +243,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Create CloudWatch log groups if not exists
+        run: |
+          aws logs describe-log-groups --region ${{ env.AWS_REGION }} \
+            --query "logGroups[?logGroupName=='/ecs/langlog-api'].logGroupName" --output text | \
+            grep -q '/ecs/langlog-api' || \
+            aws logs create-log-group --log-group-name /ecs/langlog-api --region ${{ env.AWS_REGION }}
+          aws logs describe-log-groups --region ${{ env.AWS_REGION }} \
+            --query "logGroups[?logGroupName=='/ecs/langlog-frontend'].logGroupName" --output text | \
+            grep -q '/ecs/langlog-frontend' || \
+            aws logs create-log-group --log-group-name /ecs/langlog-frontend --region ${{ env.AWS_REGION }}
+
       - name: Update ECS task definition
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com

@@ -22,7 +22,7 @@
       "environment": [
         {
           "name": "DATABASE_URL",
-          "value": "postgresql://admin:PASSWORD@langlog-db.xxxxx.ap-northeast-1.rds.amazonaws.com:5432/langlog"
+          "value": "postgresql://langlogadmin:LangLogPassword123!@langlog-db.cx0cgqgk4tr2.ap-northeast-1.rds.amazonaws.com:5432/langlog"
         },
         {
           "name": "ENVIRONMENT",
@@ -76,7 +76,13 @@
         "timeout": 10,
         "retries": 3,
         "startPeriod": 20
-      }
+      },
+      "dependsOn": [
+        {
+          "containerName": "fastapi",
+          "condition": "START"
+        }
+      ]
     }
   ]
 }
