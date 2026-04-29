@@ -82,6 +82,7 @@ jobs:
       - name: Run pytest
         env:
           DATABASE_URL: postgresql://postgres:test@localhost:5432/langlog_test
+          PYTHONPATH: ${{ github.workspace }}/english-diary/backend
         run: |
           cd english-diary/backend
           # コード品質メトリクス付きでテスト実行
