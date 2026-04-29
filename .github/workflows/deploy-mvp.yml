@@ -263,41 +263,18 @@ jobs:
           # タスク定義の更新フロー
           # ============================================
 
-          # ステップ 1: AWS から既存タスク定義を取得（初回はローカルファイルを使用）
-          if aws ecs describe-task-definition \
-            --task-definition langlog-api-task \
-            --region ${{ env.AWS_REGION }} \
-            --query 'taskDefinition' > task-definition.json 2>/dev/null; then
-            echo "Existing task definition found, updating image URIs..."
-          else
-            echo "Task definition not found, registering from local file..."
-            # ローカルのベースファイルを初回登録
-            aws ecs register-task-definition \
-              --cli-input-json file://ecs-task-definition-poc.json \
-              --region ${{ env.AWS_REGION }}
-            # 登録後に再取得
-            aws ecs describe-task-definition \
-              --task-definition langlog-api-task \
-              --region ${{ env.AWS_REGION }} \
-              --query 'taskDefinition' > task-definition.json
-          fi
+          # ローカルの2コンテナ構成（fastapi + nginx）をベースにイメージURIを置換
+          cp ecs-task-definition-poc.json task-definition-clean.json
 
-          # ステップ 2: FastAPI イメージ URI を新バージョンに置換
-          # 既存：xxx.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:<old-hash>
-          # 新規：xxx.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-api:<new-hash>
+          # FastAPI イメージ URI を新バージョンに置換
           sed -i "s|\"image\": \".*langlog-api.*\"|\"image\": \"$ECR_REGISTRY/langlog-api:$IMAGE_TAG\"|g" \
-            task-definition.json
+            task-definition-clean.json
 
-          # ステップ 3: Nginx イメージ URI を新バージョンに置換
+          # Nginx イメージ URI を新バージョンに置換
           sed -i "s|\"image\": \".*langlog-frontend.*\"|\"image\": \"$ECR_REGISTRY/langlog-frontend:$IMAGE_TAG\"|g" \
-            task-definition.json
+            task-definition-clean.json
 
-          # ステップ 4: AWS管理の読み取り専用フィールドを除去（register時にエラーになるため）
-          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
-            task-definition.json > task-definition-clean.json
-
-          # ステップ 5: 新しいリビジョンでタスク定義を登録
-          # AWS は自動的にリビジョン番号をインクリメント
+          # 新しいリビジョンでタスク定義を登録
           aws ecs register-task-definition \
             --cli-input-json file://task-definition-clean.json \
             --region ${{ env.AWS_REGION }}
