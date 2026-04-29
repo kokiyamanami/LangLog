@@ -305,7 +305,7 @@ jobs:
           # サービスが存在するか確認
           SERVICE_STATUS=$(aws ecs describe-services \
             --cluster langlog-cluster \
-            --services langlog-poc-service \
+            --services langlog-service \
             --region ${{ env.AWS_REGION }} \
             --query 'services[0].status' --output text 2>/dev/null || echo "MISSING")
 
@@ -313,7 +313,7 @@ jobs:
             echo "Service exists, updating..."
             aws ecs update-service \
               --cluster langlog-cluster \
-              --service langlog-poc-service \
+              --service langlog-service \
               --task-definition langlog-poc-task \
               --force-new-deployment \
               --region ${{ env.AWS_REGION }}
@@ -334,7 +334,7 @@ jobs:
 
             aws ecs create-service \
               --cluster langlog-cluster \
-              --service-name langlog-poc-service \
+              --service-name langlog-service \
               --task-definition langlog-poc-task \
               --desired-count 1 \
               --launch-type FARGATE \
@@ -353,7 +353,7 @@ jobs:
           # - ポーリング間隔：15 秒
           aws ecs wait services-stable \
             --cluster langlog-cluster \
-            --services langlog-poc-service \
+            --services langlog-service \
             --region ${{ env.AWS_REGION }}
 
       - name: Get ECS task public IP
@@ -365,7 +365,7 @@ jobs:
           # ステップ 1: サービス内のタスク ARN を取得
           TASK_ARN=$(aws ecs list-tasks \
             --cluster langlog-cluster \
-            --service-name langlog-poc-service \
+            --service-name langlog-service \
             --region ${{ env.AWS_REGION }} \
             --query 'taskArns[0]' --output text)
 
@@ -375,7 +375,7 @@ jobs:
             sleep 10
             TASK_ARN=$(aws ecs list-tasks \
               --cluster langlog-cluster \
-              --service-name langlog-poc-service \
+              --service-name langlog-service \
               --region ${{ env.AWS_REGION }} \
               --query 'taskArns[0]' --output text)
           fi
