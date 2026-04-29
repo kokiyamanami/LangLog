@@ -294,18 +294,53 @@ jobs:
       - name: Update ECS service
         run: |
           # ============================================
-          # ECS サービス更新（デプロイ開始）
+          # ECS クラスター・サービスの作成 or 更新
           # ============================================
-          # --force-new-deployment：
-          # - rolling deployment を開始
-          # - 古いタスク停止 → 新タスク起動（ダウンタイムなし）
-          # - --task-definition は最新リビジョンを自動指定
-          aws ecs update-service \
+
+          # クラスターが存在しなければ作成
+          aws ecs describe-clusters --clusters langlog-cluster --region ${{ env.AWS_REGION }} \
+            --query 'clusters[?status==`ACTIVE`].clusterName' --output text | grep -q langlog-cluster || \
+          aws ecs create-cluster --cluster-name langlog-cluster --region ${{ env.AWS_REGION }}
+
+          # サービスが存在するか確認
+          SERVICE_STATUS=$(aws ecs describe-services \
             --cluster langlog-cluster \
-            --service langlog-poc-service \
-            --task-definition langlog-poc-task \
-            --force-new-deployment \
-            --region ${{ env.AWS_REGION }}
+            --services langlog-poc-service \
+            --region ${{ env.AWS_REGION }} \
+            --query 'services[0].status' --output text 2>/dev/null || echo "MISSING")
+
+          if [ "$SERVICE_STATUS" = "ACTIVE" ]; then
+            echo "Service exists, updating..."
+            aws ecs update-service \
+              --cluster langlog-cluster \
+              --service langlog-poc-service \
+              --task-definition langlog-poc-task \
+              --force-new-deployment \
+              --region ${{ env.AWS_REGION }}
+          else
+            echo "Service not found, creating..."
+
+            # デフォルトVPCのサブネット・セキュリティグループを自動取得
+            SUBNET_ID=$(aws ec2 describe-subnets \
+              --region ${{ env.AWS_REGION }} \
+              --filters "Name=default-for-az,Values=true" \
+              --query "Subnets[0].SubnetId" --output text)
+            SG_ID=$(aws ec2 describe-security-groups \
+              --region ${{ env.AWS_REGION }} \
+              --filters "Name=group-name,Values=default" \
+              --query "SecurityGroups[0].GroupId" --output text)
+
+            echo "Using Subnet: $SUBNET_ID, SG: $SG_ID"
+
+            aws ecs create-service \
+              --cluster langlog-cluster \
+              --service-name langlog-poc-service \
+              --task-definition langlog-poc-task \
+              --desired-count 1 \
+              --launch-type FARGATE \
+              --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
+              --region ${{ env.AWS_REGION }}
+          fi
 
       - name: Wait for deployment
         run: |
