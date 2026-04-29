@@ -45,9 +45,7 @@ class Settings(BaseSettings):
     
     # ===== CORS (Cross-Origin Resource Sharing) 設定 =====
     CORS_ORIGINS: list = [
-        "http://localhost",
-        "http://localhost:3000",
-        "http://localhost:8000",
+        "*"  # Production では環境変数から設定すること
     ]
     
     class Config:

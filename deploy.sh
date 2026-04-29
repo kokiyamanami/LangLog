@@ -1,69 +1,57 @@
 #!/bin/bash
 set -e
 
-# Load environment variables from .env file
-if [ -f .env ]; then
-    export $(cat .env | grep -v '#' | xargs)
-else
-    echo "❌ Error: .env file not found!"
-    echo "Please create a .env file by copying .env.example:"
-    echo "  cp .env.example .env"
-    echo "Then update the values with your AWS credentials."
-    exit 1
+BACKEND_PATH="/mnt/c/Users/yaman/OneDrive/デスクトップ/LangLog/LangLog/english-diary/backend"
+FRONTEND_PATH="/mnt/c/Users/yaman/OneDrive/デスクトップ/LangLog/LangLog/english-diary/frontend"
+ENV_FILE="${FRONTEND_PATH}/.env.production"
+AWS_REGION="ap-northeast-1"
+ECR_URI="389323710086.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-backend:latest"
+
+echo "=== Deploy Start ==="
+
+echo "[1/4] Building Docker image..."
+cd "$BACKEND_PATH"
+docker build -t langlog-backend:latest -f Dockerfile.backend .
+
+echo "[2/4] Pushing to ECR..."
+aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "389323710086.dkr.ecr.${AWS_REGION}.amazonaws.com"
+docker tag langlog-backend:latest "$ECR_URI"
+docker push "$ECR_URI"
+
+echo "[3/4] Updating ECS service..."
+aws ecs update-service --cluster langlog-cluster --service langlog-service --force-new-deployment --region "$AWS_REGION" > /dev/null
+echo "Waiting 90s for new task to start..."
+sleep 90
+
+echo "[4/4] Getting new task IP..."
+TASK_ARN=$(aws ecs list-tasks --cluster langlog-cluster --region "$AWS_REGION" --query 'taskArns[0]' --output text)
+echo "Task ARN: $TASK_ARN"
+
+ENI_ID=$(aws ecs describe-tasks --cluster langlog-cluster --tasks "$TASK_ARN" --region "$AWS_REGION" --output json | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+details = d['tasks'][0]['attachments'][0]['details']
+eni = [x['value'] for x in details if x['name'] == 'networkInterfaceId'][0]
+print(eni)
+")
+echo "ENI: $ENI_ID"
+
+NEW_IP=$(aws ec2 describe-network-interfaces --network-interface-ids "$ENI_ID" --region "$AWS_REGION" --query 'NetworkInterfaces[0].Association.PublicIp' --output text)
+echo "New IP: $NEW_IP"
+
+echo "VITE_API_URL=http://${NEW_IP}:8000/api/v1" > "$ENV_FILE"
+echo "Updated .env.production: VITE_API_URL=http://${NEW_IP}:8000/api/v1"
+
+read -p "Deploy Frontend too? (y/n): " R
+if [ "$R" = "y" ]; then
+  echo "Building frontend..."
+  cd "$FRONTEND_PATH"
+  npm run build
+  aws s3 sync dist s3://langlog-frontend-poc --region "$AWS_REGION" --delete
+  echo "Frontend deployed!"
 fi
 
-# Validate required variables
-required_vars=("AWS_ACCOUNT_ID" "AWS_REGION" "ECS_CLUSTER_NAME" "ECR_REPO_NAME")
-for var in "${required_vars[@]}"; do
-    if [ -z "${!var}" ]; then
-        echo "❌ Error: $var is not set in .env file"
-        exit 1
-    fi
-done
-
-echo "🚀 FastAPI to ECS Deployment Script"
-echo "===================================="
-echo "AWS Account: $AWS_ACCOUNT_ID"
-echo "AWS Region: $AWS_REGION"
-echo "Repository: $ECR_REPO_NAME"
 echo ""
-
-# 1. Build Docker image
-echo "📦 Building Docker image..."
-docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} .
-
-# 2. Login to ECR
-echo "🔐 Logging in to AWS ECR..."
-aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-
-# 3. Create ECR repository if it doesn't exist
-echo "📝 Ensuring ECR repository exists..."
-aws ecr create-repository \
-  --repository-name ${ECR_REPO_NAME} \
-  --region ${AWS_REGION} || echo "Repository already exists"
-
-# 4. Tag the image for ECR
-echo "🏷️  Tagging image for ECR..."
-docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-
-# 5. Push to ECR
-echo "📤 Pushing image to ECR..."
-docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
-
-# 6. Update ECS task definition
-echo "📋 Updating ECS task definition..."
-aws ecs register-task-definition \
-  --cli-input-json file://ecs-task-definition.json \
-  --region ${AWS_REGION}
-
-# 7. Update ECS service
-echo "🔄 Updating ECS service..."
-aws ecs update-service \
-  --cluster ${ECS_CLUSTER_NAME} \
-  --service ${ECS_SERVICE_NAME} \
-  --task-definition ${ECS_TASK_FAMILY}:1 \
-  --force-new-deployment \
-  --region ${AWS_REGION}
-
-echo "✅ Deployment complete!"
-echo "Monitor the service: aws ecs describe-services --cluster ${ECS_CLUSTER_NAME} --services ${ECS_SERVICE_NAME} --region ${AWS_REGION}"
+echo "=== Done! ==="
+echo "API: http://${NEW_IP}:8000"
+echo "Frontend: http://langlog-frontend-poc.s3-website.ap-northeast-1.amazonaws.com"

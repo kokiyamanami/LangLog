@@ -20,12 +20,12 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
-# Add CORS middleware
+# Add CORS middleware - MUST be added before including routers
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -33,6 +33,13 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(diary.router)
+
+
+# キャッチオール OPTIONS ハンドラー（CORS プリフライト対応）
+@app.options("/{full_path:path}")
+async def options_handler(full_path: str):
+    """OPTIONS リクエストを全エンドポイントで許可"""
+    return {}
 
 
 @app.get("/")

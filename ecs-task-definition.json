@@ -4,11 +4,22 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
+  "executionRoleArn": "arn:aws:iam::389323710086:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "langlog-api",
-      "image": "[AWS_ACCOUNT_ID].dkr.ecr.[REGION].amazonaws.com/langlog-api:latest",
+      "image": "389323710086.dkr.ecr.ap-northeast-1.amazonaws.com/langlog-backend:latest",
       "essential": true,
+      "environment": [
+        {
+          "name": "DATABASE_URL",
+          "value": "postgresql://langlogadmin:LangLogPassword123!@langlog-db.cx0cgqgk4tr2.ap-northeast-1.rds.amazonaws.com:5432/langlog"
+        },
+        {
+          "name": "ENVIRONMENT",
+          "value": "production"
+        }
+      ],
       "portMappings": [
         {
           "containerPort": 8000,
@@ -20,19 +31,10 @@
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/langlog-api",
-          "awslogs-region": "[REGION]",
+          "awslogs-region": "ap-northeast-1",
           "awslogs-stream-prefix": "ecs"
         }
-      },
-      "healthCheck": {
-        "command": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
-        "interval": 30,
-        "timeout": 5,
-        "retries": 3,
-        "startPeriod": 10
       }
     }
-  ],
-  "executionRoleArn": "arn:aws:iam::[AWS_ACCOUNT_ID]:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::[AWS_ACCOUNT_ID]:role/ecsTaskRole"
+  ]
 }

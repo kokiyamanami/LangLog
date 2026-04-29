@@ -10,7 +10,7 @@ import axios from 'axios'
  * を実装している。
  */
 
-const API_URL = 'http://localhost:8000/api/v1'
+const API_URL = process.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL || 'http://3.112.58.39:8000/api/v1'
 
 // Axiosインスタンスを作成（全APIリクエストに使用）
 const apiClient = axios.create({
