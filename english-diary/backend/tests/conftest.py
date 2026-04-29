@@ -11,11 +11,14 @@ from app.main import app
 from app.database import Base, get_db
 from app.models.user import User
 from app.models.diary import Diary
-from app.routers.auth import get_password_hash
+from app.services.auth_service import hash_password as get_password_hash
 
 
 # テスト用データベース設定
-TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
+TEST_DATABASE_URL = os.getenv(
+    "TEST_DATABASE_URL",
+    os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/english_diary")
+)
 
 @pytest.fixture(scope="session")
 def db_engine():

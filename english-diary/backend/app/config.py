@@ -19,9 +19,10 @@ class Settings(BaseSettings):
     # ===== データベース設定 =====
     # PostgreSQL への接続文字列
     # 形式: postgresql://ユーザー名:パスワード@ホスト/データベース名
+    # TEST_DATABASE_URL が設定されている場合はそちらを優先（テスト環境用）
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://postgres:postgres@localhost/english_diary"
+        os.getenv("TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost/english_diary")
     )
     
     # ===== JWT (JSON Web Token) 認証設定 =====

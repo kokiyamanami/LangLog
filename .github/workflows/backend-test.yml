@@ -64,7 +64,6 @@ jobs:
         working-directory: english-diary/backend
         env:
           DATABASE_URL: postgresql://langlog_test:test_password@localhost:5432/langlog_test
-          TEST_DATABASE_URL: sqlite:///./test.db
           PYTHONPATH: ${{ github.workspace }}/english-diary/backend
         run: |
           python -m pytest tests/ \
