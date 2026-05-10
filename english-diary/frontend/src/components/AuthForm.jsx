@@ -35,7 +35,16 @@ export function AuthForm({ isRegister = false, onSubmit, loading = false }) {
       }
     } catch (err) {
       // エラーメッセージをサーバーレスポンスから取得
-      setError(err.response?.data?.detail || 'エラーが発生しました')
+      const detail = err.response?.data?.detail
+      if (detail === 'Email already registered') {
+        setError('このメールアドレスはすでに登録されています')
+      } else if (detail === 'Invalid credentials') {
+        setError('メールアドレスまたはパスワードが正しくありません')
+      } else if (Array.isArray(detail)) {
+        setError(detail.map(d => d.msg).join(', '))
+      } else {
+        setError(detail || 'エラーが発生しました')
+      }
     }
   }
 
