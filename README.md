@@ -1,5 +1,47 @@
 # LangLog API - FastAPI to ECS Deployment Guide
 
+## 🚀 デプロイ後のアクセス方法
+
+ECS Fargate はデプロイのたびに **パブリック IP が変わります**。
+以下のコマンドで現在の IP を確認してください。
+
+```bash
+# 現在のパブリック IP を取得（WSL / Linux / Mac で実行）
+TASK_ARN=$(aws ecs list-tasks \
+  --cluster langlog-cluster \
+  --service-name langlog-service \
+  --region ap-northeast-1 \
+  --query 'taskArns[0]' --output text)
+
+ENI_ID=$(aws ecs describe-tasks \
+  --cluster langlog-cluster \
+  --tasks $TASK_ARN \
+  --region ap-northeast-1 \
+  --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' \
+  --output text)
+
+PUBLIC_IP=$(aws ec2 describe-network-interfaces \
+  --network-interface-ids $ENI_ID \
+  --region ap-northeast-1 \
+  --query 'NetworkInterfaces[0].Association.PublicIp' \
+  --output text)
+
+echo "🌐 アクセスURL: http://$PUBLIC_IP/"
+echo "📖 API Docs:   http://$PUBLIC_IP/docs"
+echo "❤️  Health:     http://$PUBLIC_IP/health"
+```
+
+| エンドポイント        | 内容                  |
+| --------------------- | --------------------- |
+| `http://<IP>/`        | React フロントエンド  |
+| `http://<IP>/docs`    | Swagger UI（API仕様） |
+| `http://<IP>/health`  | ヘルスチェック        |
+| `http://<IP>/api/v1/` | FastAPI バックエンド  |
+
+> **補足**: GitHub Actions のデプロイログ末尾にも URL が出力されます。
+
+---
+
 ## プロジェクト構成
 
 ```
