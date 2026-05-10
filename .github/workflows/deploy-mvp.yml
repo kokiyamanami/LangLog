@@ -27,6 +27,7 @@ on:
       - "english-diary/backend/**"
       - "english-diary/frontend/**"
       - "nginx.conf"
+      - "ecs-task-definition-poc.json"
       - ".github/workflows/deploy-mvp.yml"
   # 手動トリガー（GitHub UI から実行可能）
   workflow_dispatch:
