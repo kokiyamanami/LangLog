@@ -66,7 +66,7 @@ export function CalendarPage() {
   const getDiariesForDate = (date) => {
     const targetDateStr = formatDateToString(date)
     return allDiaries.filter(diary => {
-      const diaryDateStr = formatDateToString(new Date(diary.created_at))
+      const diaryDateStr = formatDateToString(new Date(diary.created_at + 'Z'))
       return diaryDateStr === targetDateStr
     })
   }
@@ -190,7 +190,7 @@ export function CalendarPage() {
               <div className="stat">
                 <span className="stat-label">記録日数</span>
                 <span className="stat-value">
-                  {new Set(allDiaries.map(d => formatDateToString(new Date(d.created_at)))).size}
+                  {new Set(allDiaries.map(d => formatDateToString(new Date(d.created_at + 'Z')))).size}
                 </span>
               </div>
               <div className="stat">
@@ -238,9 +238,10 @@ export function CalendarPage() {
                     <div key={diary.id} className="diary-card">
                       <div className="diary-card-header">
                         <h4>
-                          {new Date(diary.created_at).toLocaleTimeString('ja-JP', {
+                          {new Date(diary.created_at + 'Z').toLocaleTimeString('ja-JP', {
                             hour: '2-digit',
-                            minute: '2-digit'
+                            minute: '2-digit',
+                            timeZone: 'Asia/Tokyo'
                           })}
                           に保存
                         </h4>

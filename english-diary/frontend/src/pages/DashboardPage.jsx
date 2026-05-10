@@ -81,7 +81,7 @@ export function DashboardPage() {
 
     // 今月の日記数を計算
     const monthlyDiaries = diaries.filter(diary => {
-      const diaryDate = new Date(diary.created_at)
+      const diaryDate = new Date(diary.created_at + 'Z')
       return diaryDate.getMonth() === currentMonth && diaryDate.getFullYear() === currentYear
     })
 
