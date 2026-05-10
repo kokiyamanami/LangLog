@@ -275,6 +275,10 @@ jobs:
           sed -i "s|\"image\": \".*langlog-frontend.*\"|\"image\": \"$ECR_REGISTRY/langlog-frontend:$IMAGE_TAG\"|g" \
             task-definition-clean.json
 
+          # OpenAI API キーを Secrets から注入
+          sed -i "s|REPLACE_WITH_OPENAI_API_KEY|${{ secrets.OPENAI_API_KEY }}|g" \
+            task-definition-clean.json
+
           # 新しいリビジョンでタスク定義を登録
           aws ecs register-task-definition \
             --cli-input-json file://task-definition-clean.json \

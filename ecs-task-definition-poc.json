@@ -25,6 +25,10 @@
           "value": "postgresql://langlogadmin:LangLogPassword123!@langlog-db.cx0cgqgk4tr2.ap-northeast-1.rds.amazonaws.com:5432/langlog"
         },
         {
+          "name": "OPENAI_API_KEY",
+          "value": "REPLACE_WITH_OPENAI_API_KEY"
+        },
+        {
           "name": "ENVIRONMENT",
           "value": "production"
         }

@@ -2,12 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 import re
+import json
+import logging
+from openai import OpenAI
 
 from app.database import get_db
 from app.models.diary import Diary
 from app.schemas.diary import DiaryCreate, DiaryResponse, CorrectionItem, CorrectionStats
 from app.routers.users import get_current_user
 from app.models.user import User
+from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -16,77 +22,58 @@ router = APIRouter(
 )
 
 
-def mock_correct_text(text: str) -> tuple[str, list]:
+def ai_correct_text(text: str) -> tuple[str, list]:
     """
-    モック校正関数：パターンマッチングを使った簡易的な英文校正
-    
-    実際のAI実装（AWS、OpenAI等）の代わりに使用するモック校正機能。
-    複数のパターンマッチングルールを適用してテキストを修正し、
-    修正内容と修正理由をリストで返す。
-    
+    OpenAI GPT-4o-mini を使った英文AI添削
+
     Returns:
-        tuple: (修正されたテキスト, 修正内容のリスト)
-        例: ("I'm going to...", [{"original": "I am", "corrected": "I'm", "reason": "..."}])
-    
-    Note:
-        実装当初はパターンベースだが、将来的には以下に置き換え可能：
-        - Claude API（Anthropic）
-        - OpenAI GPT-4
-        - AWS Comprehend
+        tuple: (添削後テキスト, 修正内容のリスト)
     """
-    corrections = []
-    corrected = text
+    if not settings.OPENAI_API_KEY:
+        # APIキー未設定時はフォールバック（空の添削）
+        logger.warning("OPENAI_API_KEY が設定されていません。添削をスキップします。")
+        return text, []
 
-    # パターンベースの校正ルール
-    patterns = [
-        # 短縮形の提案
-        (r'\bI am\b', 'I\'m', 'I am を I\'m に短縮（カジュアルな表現）'),
-        (r'\bI am going to\b', 'I\'m going to', 'I am going to を短縮形に（日常会話）'),
-        (r'\byou are\b', 'you\'re', 'you are を you\'re に短縮'),
-        (r'\bhe is\b', 'he\'s', 'he is を he\'s に短縮'),
-        (r'\bshe is\b', 'she\'s', 'she is を she\'s に短縮'),
-        
-        # 時制の提案
-        (r'\bI go\b', 'I went', '過去形に修正：go → went（過去の出来事の場合）'),
-        (r'\bI see\b', 'I saw', '過去形に修正：see → saw'),
-        
-        # 文法的な修正
-        (r'\bvery good\b', 'excellent', 'より自然な表現に：very good → excellent'),
-        (r'\bvery bad\b', 'terrible', 'より自然な表現に：very bad → terrible'),
-        (r'\bI like very much\b', 'I like it very much', '目的語の追加：it が必要'),
-        
-        # スペルチェック
-        (r'\brecieve\b', 'receive', 'スペルミス修正：recieve → receive'),
-        (r'\boccured\b', 'occurred', 'スペルミス修正：occured → occurred'),
-    ]
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-    for original_pattern, corrected_word, reason in patterns:
-        # 大文字小文字を区別しないマッチングを行う
-        matches = list(re.finditer(original_pattern, corrected, re.IGNORECASE))
-        
-        if matches:
-            # 最後のマッチから処理（インデックスズレを防ぐため逆順）
-            for match in reversed(matches):
-                # 元のテキストから該当部分を取得
-                original_match = match.group(0)
-                
-                # 大文字小文字を保持する
-                if original_match[0].isupper():
-                    corrected_match = corrected_word[0].upper() + corrected_word[1:]
-                else:
-                    corrected_match = corrected_word.lower()
-                
-                # 校正内容を記録
-                corrections.append({
-                    "original": original_match,
-                    "corrected": corrected_match,
-                    "reason": reason
-                })
-                
-                # テキストを置換
-                corrected = corrected[:match.start()] + corrected_match + corrected[match.end():]
+    system_prompt = """You are an expert English writing coach specializing in helping Japanese learners improve their English diary entries.
 
-    return corrected, corrections
+Your task is to proofread the given English text and return corrections in JSON format.
+
+Rules:
+- Correct grammar errors, spelling mistakes, and unnatural expressions
+- Suggest more natural English phrasing when appropriate
+- Keep the original meaning and tone
+- If the text is already correct, return an empty corrections array
+
+Return ONLY valid JSON in this exact format:
+{
+  "corrected_text": "<full corrected text>",
+  "corrections": [
+    {
+      "original": "<original phrase>",
+      "corrected": "<corrected phrase>",
+      "reason": "<explanation in Japanese>"
+    }
+  ]
+}"""
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Please proofread this English diary entry:\n\n{text}"}
+        ],
+        response_format={"type": "json_object"},
+        temperature=0.3,
+        max_tokens=1000,
+    )
+
+    result = json.loads(response.choices[0].message.content)
+    corrected_text = result.get("corrected_text", text)
+    corrections = result.get("corrections", [])
+
+    return corrected_text, corrections
 
 
 def calculate_stats(text: str) -> dict:
@@ -127,8 +114,8 @@ async def create_diary(
         DiaryResponse: 日記データと校正結果
     """
     try:
-        # モック校正を実行
-        corrected_text, corrections = mock_correct_text(diary_data.original_text)
+        # AI添削を実行
+        corrected_text, corrections = ai_correct_text(diary_data.original_text)
         stats = calculate_stats(diary_data.original_text)
 
         # データベースに保存

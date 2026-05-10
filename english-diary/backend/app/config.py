@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     # リフレッシュトークンの有効期限（日数単位）
     JWT_REFRESH_EXPIRATION_DAYS: int = 7
     
+    # ===== OpenAI 設定 =====
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+
     # ===== API 設定 =====
     # API のベースパス（すべてのエンドポイントはこれを接頭辞として使用）
     API_V1_STR: str = "/api/v1"
