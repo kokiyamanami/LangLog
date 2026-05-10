@@ -33,7 +33,7 @@ COPY . .
 # ECS が定期的にこのコマンドを実行
 # 失敗が続くと自動的にコンテナを再起動
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/auth/me || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # ============================================
 # API ポート公開
