@@ -40,6 +40,9 @@ COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
 # nginx.conf をコピー（/api → FastAPI プロキシ設定を含む）
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# デフォルト設定を削除（nginx.confのみ有効にする）
+RUN rm -f /etc/nginx/conf.d/default.conf
+
 # ============================================
 # ポート公開
 # ============================================
