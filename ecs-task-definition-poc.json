@@ -67,16 +67,6 @@
           "awslogs-stream-prefix": "ecs"
         }
       },
-      "healthCheck": {
-        "command": [
-          "CMD-SHELL",
-          "wget --quiet --tries=1 --spider http://localhost/health || exit 1"
-        ],
-        "interval": 30,
-        "timeout": 10,
-        "retries": 3,
-        "startPeriod": 20
-      },
       "dependsOn": [
         {
           "containerName": "fastapi",
